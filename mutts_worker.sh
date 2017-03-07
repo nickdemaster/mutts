@@ -4,6 +4,8 @@
 #num runs is the number of times to run 
 goTime=$1
 numruns=$2
+jobfile=$3
+
 
 #wait until time has hit goTime
 while [ $(date +%s) -lt $goTime ]; do
@@ -25,9 +27,10 @@ echo "$BASHPID : done waiting"
     #start process timer
     procStart=$(($(date +%s%N)/1000000))
     
-    randUser=$(shuf -i1-25000 -n 1)
-    mysql --socket=/var/mysql/db-test/mysql.sock -P3301 -u $randUser -p$randUser --execute="select '1' from \`$randUser\`.\`$randUser\`;" 2>&1 | grep -v "Warning: Using a password"   
-    
+    ######
+    source $jobfile
+    ######  
+  
     #end process timer
     procEnd=$(($(date +%s%N)/1000000))
     

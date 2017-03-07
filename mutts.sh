@@ -12,7 +12,9 @@ usage: $0 [-t <number>] [-r <number>] [-d <number>]
     -h        Show this message
     -t        Number of threads of the test to run (default: 1)
     -r        Number of times to run the test (default: 1)
-    -p        Initial thread spawn delay in seconds (default: 10)
+    -d        Initial thread spawn delay in seconds (default: 10)
+    -j        Job file location
+#TODO:    -l        Write inside output to file location
 EOF
 
 echo "" 
@@ -29,7 +31,7 @@ r=1
 d=10
 
 #get arguments and set variable
-while getopts ":r:t:d:" o; do
+while getopts ":r:t:d:j:l:" o; do
     case "${o}" in
         t)
            t=${OPTARG}
@@ -40,7 +42,12 @@ while getopts ":r:t:d:" o; do
         d)
            d=${OPTARG}
             ;;
-
+        j)
+           j=${OPTARG}
+            ;;
+        l)
+           l=${OPTARG}
+            ;;
         *)
             usage
             ;;
@@ -65,15 +72,23 @@ if ! [[ $d =~ $re ]]; then
     usage
 fi
 
+if ! [[ -f $j ]]; then
+    usage
+fi
+
 #feedback to use running
 echo "Threads     = $t"
 echo "Runs/Thread = $r"
 echo "Start Delay = $d"
+echo "Job File    = $j"
+# TODO: echo "Log file    = $l"
 
-$set nicer names
+#set nicer names
 threads=$t
 runs=$r
 delay=$d
+jobfile=$j
+logfile=$l
 
 #get runtime of master and add delay for thread start times
 masterStart=$(date +%s)
@@ -82,7 +97,7 @@ masterInitiate=$((masterStart + $delay))
 #spawn worker threads
 for i in `seq $threads`; do # start in parallel
  
-  ./mutts_worker.sh $masterInitiate $runs &  
+  ./mutts_worker.sh $masterInitiate $runs $jobfile $logfile &  
 
 done
 
